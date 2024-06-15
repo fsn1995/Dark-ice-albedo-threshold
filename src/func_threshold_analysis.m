@@ -11,11 +11,12 @@ function [f1] = func_threshold_analysis(dfaws)
 if isstring(dfaws)
     dfaws = readtable(dfaws);
 end
+dfaws = dfaws(dfaws.awsgroup == "M", :);
 [dfaws.y, dfaws.m, dfaws.d] = ymd(dfaws.time);
 dfaws = dfaws(dfaws.m>5 & dfaws.m<9, :); % limit to JJA
 % awsgroup = ["U", "M", "L", "G"];
 % awsgroupColor = ["#186294", "#bd3162", "#cdb47b", "#41b4ee"]; % gyarados
-awsgroup = ["G", "L", "M", "U"];
+% awsgroup = ["G", "L", "M", "U"];
 awsgroupColor = ["#41b4ee", "#cdb47b", "#bd3162", "#186294", "#737b7b", "#5a4120"]; % gyarados
 
 %% plot mean albedo over different AWS groups
@@ -54,12 +55,13 @@ plot(ax2, [time_change(1) time_change(1)], [0 albedo_change(1)], ...
     [dfstat.time(1) time_change(2)], [albedo_change(2) albedo_change(2)], ...
     [time_change(3) time_change(3)], [0 albedo_change(3)], ...
     [dfstat.time(1) time_change(3)], [albedo_change(3) albedo_change(3)], ...
-    "LineStyle", "-.", "LineWidth", 1, "Color", awsgroupColor(5));
+    "LineStyle", "-.", "LineWidth", 1, "Color", awsgroupColor(3));
 hold on
 scatter(ax2, time_change, albedo_change, ...
-    "filled", "MarkerFaceColor", awsgroupColor(5));
-yline(ax2, albedo_threshold, '-.', sprintf('\\alpha (mean) = %.3f', albedo_threshold),...
-        'Color', awsgroupColor(5), 'LineWidth', 1.5, 'LabelHorizontalAlignment','right');
+    "filled", "MarkerFaceColor", awsgroupColor(3));
+line1 = yline(ax2, albedo_threshold, '-.', sprintf('\\alpha (mean) = %.3f', albedo_threshold),...
+        'Color', awsgroupColor(3), 'LineWidth', 1.5, 'LabelHorizontalAlignment','right', ...
+        "DisplayName", "abrupt change in mean");
 
 % find abrupt change in linear
 [TF,S1,S2] = ischange(dfstat.mean_albedo, "linear", "MaxNumChanges", 3);
@@ -75,41 +77,23 @@ plot(ax2, [time_change(1) time_change(1)], [0 albedo_change(1)], ...
     "LineStyle", "--", "LineWidth", 1, "Color", awsgroupColor(6));
 scatter(ax2, time_change, albedo_change, ...
     "filled", "MarkerFaceColor", awsgroupColor(6));
-yline(ax2, albedo_threshold, '--', sprintf('\\alpha (linear) = %.3f', albedo_threshold),...
-        'Color', awsgroupColor(6), 'LineWidth', 1.5, 'LabelHorizontalAlignment','left');
+line2 = yline(ax2, albedo_threshold, '--', sprintf('\\alpha (linear) = %.3f', albedo_threshold),...
+        'Color', awsgroupColor(6), 'LineWidth', 1.5, 'LabelHorizontalAlignment','left', ...
+        "DisplayName", "abrupt change in linear regime");
 
-plotAWSGroup(ax2, df, awsgroup, awsgroupColor);
-ax2.XTickLabel = ax2.XTickLabel;
+line3 = plot(dfstat.time, dfstat.mean_albedo, "LineWidth", 2, ...
+    "DisplayName", "\alpha \pm 1\sigma", "Color", awsgroupColor(1));
+plotci(ax2, dfstat.time, dfstat.mean_albedoH, dfstat.mean_albedoL, ...
+            awsgroupColor(1));
 text(ax2, datetime(2023, 6, 3), 0.2, "b)", "FontSize", 12);
 ylim(ax2, [0.15 0.9]);
+xlim(ax2, [datetime(2023,6,1) datetime(2023,8,31)]);
 ylabel(ax2, "albedo (\alpha)");
+ax2.XTickLabel = ax2.XTickLabel;
+grid on
+legend([line3 line1 line2], "Location", "northeast");
 fontsize(f1, 12, "points");
 exportgraphics(f1, "..\print\fig1_aoi.pdf", "Resolution", 300);
-
-% dfstat = df;
-% writetable(dfstat, statsoutput+"\stat.xlsx","Sheet", "threshold");
-% f1 = figure;
-% f1.Position = [488   242   560   420];
-% figax = gca;
-% hold on
-% plotAWSGroup(figax, df, awsgroup, awsgroupColor);
-% figax.XTickLabel = figax.XTickLabel;
-% exportgraphics(f1, "..\print\threshold_analysis.pdf", "Append", false, "Resolution", 300);
-% 
-% % year by year
-% df = groupsummary(dfaws, {'y', 'm', 'd', 'awsgroup'}, "all", "albedo");
-% df.mean_albedoH = df.mean_albedo + df.std_albedo;
-% df.mean_albedoL = df.mean_albedo - df.std_albedo;
-% df.time = datetime(df.y, df.m, df.d); 
-% for y = min(df.y):1:max(df.y)
-%     f1 = figure;
-%     f1.Position = [488   242   560   420];
-%     figax = gca;
-%     hold on
-%     plotAWSGroup(figax, df(df.y==y, :), awsgroup, awsgroupColor);
-%     exportgraphics(f1, "..\print\threshold_analysis.pdf", "Append", true, "Resolution", 300);
-%     close all
-% end
 
 
 %% functions
@@ -141,7 +125,7 @@ function plotAWSGroup(figax, df, awsgroup, awsgroupColor)
 end
 
 function plotci(ax, x, meanH, meanL, colorcode)
-
+% plot confidence interval
 index = isnan(meanH);
 p = fill(ax, [x(~index); flipud(x(~index))], [meanH(~index); flipud(meanL(~index))], 'k');
 p.FaceColor = colorcode;
