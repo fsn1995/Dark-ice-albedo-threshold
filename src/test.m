@@ -1,119 +1,72 @@
-% close all
+tifFolder = "H:\AU\promiceaws\HSA\KAN_M";
+tiffiles = dir(fullfile(tifFolder, "\**\*.tif"));
+tiffiles = tiffiles(22:83); % 2019-06-01 to 2019-08-31
 
-load("..\data\MODIS\MODIS_2002.mat");
-days
-minA(minA>=0.451) = nan;
-figure
-mapshow(days431, R, "DisplayType", "surface");
+imoutputfolder = "..\print\";
+
+% if figfile exist, delete it
+if isfile(fullfile(imoutputfolder, "supplement_HSA_KAN_M.pdf"))
+    delete(fullfile(imoutputfolder, "supplement_HSA_KAN_M.pdf"));
+end
+
+df = array2table(zeros(0, 5), 'VariableNames', ...
+    ["imdate", "imcount431", "imcount451", "imcounttotal", "imcountmasked"]);
+writetable(df, fullfile(dfFolder, "areacount.xlsx"), ...
+    "WriteVariableNames", true, "WriteMode", "overwrite", "Sheet", "KANM");
+
+for i = 1:height(tiffiles)
+    
+    imdate = datetime(extractBefore(tiffiles(i).name, ".tif"),...
+        "InputFormat", "uuuu-MM-dd");
+    [A, R] = readgeoraster(fullfile(tiffiles(i).folder, tiffiles(i).name));
+    imalbedo = A(:,:,end);
+
+    immask = ones(size(imalbedo));
+    immask(A(:,:,end) == 0) = nan;
+    A = A.*immask;
+    imrgb = A(:,:,3:-1:1);
+    imrgb(isnan(imrgb)) = 255;
+    imalbedo = A(:,:,end);
+
+    % count areas with albedo < 0.431 and < 0.451, respectively
+    imcount431 = sum(imalbedo < 0.431, "all", "omitmissing");
+    imcount451 = sum(imalbedo < 0.451, "all", "omitmissing");
+    % count total area and ares masked out
+    imcounttotal = numel(imalbedo);
+    imcountmasked = sum(isnan(imalbedo), "all");
+
+    % save the daily dark ice area to excel
+    df = table(imdate, imcount431, imcount451, imcounttotal, imcountmasked);
+    writetable(df, fullfile(dfFolder, "areacount.xlsx"), ...
+        "WriteMode", "append", "WriteVariableNames", false, "Sheet", "KANM");
 
 
+    figfile = figure;
 
+    t = tiledlayout(1, 2, 'TileSpacing','compact','Padding','compact');
 
+    ax1 = nexttile;
+    mapshow(ax1, imrgb, R, "DisplayType", "image");
+    scalebarpsn('location', 'se');
 
+    ax2 = nexttile;
+    mapshow(imalbedo, R, "DisplayType", "surface");
+    colormap(ax2, func_dpcolor());
+    c = colorbar(ax2);
+    c.Label.String = "\alpha";
+    clim(ax2, [0 1]);
 
+    hold on
 
+    contmap = mapshow(imalbedo, R, "DisplayType", "contour", "LineColor", "#1062b4", "LineWidth", 1);
+    contmap.LevelList = [0.431 0.431];
+    contmap = mapshow(imalbedo, R, "DisplayType", "contour", "LineColor", "#395a62", "LineWidth", 1);
+    contmap.LevelList = [0.451 0.451];
 
+    title(t, "KAN\_M " + string(imdate), "FontWeight", "normal");
 
+    exportgraphics(figfile, fullfile(imoutputfolder, "supplement_HSA_KAN_M.pdf"), ...
+        "Resolution", 300, "Append", true);
 
-
-
-
-
-
-
-% df = readtable("..\data\AWS_reprocessed.csv");
-% fid = fopen("..\data\changepoint.csv", "w");
-% fprintf(fid, "awsid,year,albedo_change_mean,albedo_change_linear\n");
-% awslist = unique(df.aws);
-% 
-% for i = 1:numel(awslist)
-%     awsid = string(awslist(i));
-%     disp(awsid);
-% 
-%     dfaws = df(df.aws == awsid, :);
-%     [dfaws.y, dfaws.m, dfaws.d] = ymd(dfaws.time);
-%     dfaws = dfaws(dfaws.m > 5 & dfaws.m < 9, :);
-% 
-%     % iterate over years
-%     years = unique(dfaws.y);
-%     for y = min(years):max(years)
-% 
-%         index = dfaws.y == y;
-%         dfawsplot = dfaws(index, :);
-% 
-%         % remove incomplete observations in JJA
-%         if height(dfawsplot) < 92
-%             fprintf("incomplete observations \n");
-%             continue
-%         elseif min(dfawsplot.albedo) >=0.565
-%             fprintf("no bare ice \n");
-%             continue
-%         end
-% 
-%         f1 = figure;
-%         plot(dfawsplot.time, dfawsplot.albedo, 'LineWidth',2);
-%         hold on
-%         grid on
-%         ylim([0 1]);
-%         legend("Location", "southoutside");
-%         xlim([datetime(y, 6, 1) datetime(y, 8, 31)]);
-%         xlabel("");
-%         ylabel("albedo");
-%         text(datetime(y, 6, 1), 0.9, sprintf("AWS: %s %d", insertBefore(awsid, '_', '\'), y));
-% 
-%         % find change point in mean albedo
-%         [TF,S1,S2] = ischange(dfawsplot.albedo, "mean", "MaxNumChanges", 3);
-%         time_change = dfawsplot.time(TF);
-%         albedo_change = dfawsplot.albedo(TF);
-%         if numel(albedo_change) < 3
-%             fprintf("no or not enoughchange point \n");
-%             close all
-%             continue
-%         end
-%         albedo_threshold = mean(albedo_change(2:3));
-% 
-%         plot([time_change(1) time_change(1)], [0 albedo_change(1)], ...
-%         [dfawsplot.time(1) time_change(1)], [albedo_change(1) albedo_change(1)], ...
-%         [time_change(2) time_change(2)], [0 albedo_change(2)], ...
-%         [dfawsplot.time(1) time_change(2)], [albedo_change(2) albedo_change(2)], ...
-%         [time_change(3) time_change(3)], [0 albedo_change(3)], ...
-%         [dfawsplot.time(1) time_change(3)], [albedo_change(3) albedo_change(3)], ...
-%         "LineStyle", "-.", "LineWidth", 1, "Color", "#399ccd"); % omanyte
-%         y1 = yline(albedo_threshold, '-.', sprintf('\\alpha = %.3f', albedo_threshold),...
-%             'Color', '#399ccd', 'LineWidth', 1.5, 'LabelHorizontalAlignment','right',...
-%             'DisplayName', 'change point (mean)');
-%         fprintf(fid, "%s,%d,%.3f,", awsid, y, albedo_threshold);
-% 
-%         % find change in slope and intercept
-%         [TF,S1,S2] = ischange(dfawsplot.albedo, "linear", "MaxNumChanges", 3);
-%         time_change = dfawsplot.time(TF);
-%         albedo_change = dfawsplot.albedo(TF);
-%         if numel(albedo_change) < 3
-%             fprintf("no or not enoughchange point \n");
-%             fprintf(fid, "\n");
-%             close all
-%             continue
-%         end
-%         albedo_threshold = mean(albedo_change(2:3));
-% 
-%         plot([time_change(1) time_change(1)], [0 albedo_change(1)], ...
-%         [dfawsplot.time(1) time_change(1)], [albedo_change(1) albedo_change(1)], ...
-%         [time_change(2) time_change(2)], [0 albedo_change(2)], ...
-%         [dfawsplot.time(1) time_change(2)], [albedo_change(2) albedo_change(2)], ...
-%         [time_change(3) time_change(3)], [0 albedo_change(3)], ...
-%         [dfawsplot.time(1) time_change(3)], [albedo_change(3) albedo_change(3)], ...
-%         "LineStyle", "--", "LineWidth", 1, "Color", "#9c6a6a"); % primeape
-%         y2= yline(albedo_threshold, '--', sprintf('\\alpha = %.3f', albedo_threshold),...
-%             'Color', '#9c6a6a', 'LineWidth', 1.5, 'LabelHorizontalAlignment','left',...
-%             'DisplayName', 'change point (linear)');
-%         fprintf(fid, "%.3f\n", albedo_threshold);
-% 
-%         legend([y1 y2], 'Location', 'best');
-%         fontsize(f1, 12, "points");
-% 
-%         exportgraphics(f1, "print\" + awsid + string(y) + ".png", 'Resolution', 300);
-%         close(f1)
-% 
-%     end
-% end
-% fclose(fid);
+    close(figfile);
+end

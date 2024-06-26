@@ -17,7 +17,7 @@ dfaws = dfaws(dfaws.m>5 & dfaws.m<9, :); % limit to JJA
 % awsgroup = ["U", "M", "L", "G"];
 % awsgroupColor = ["#186294", "#bd3162", "#cdb47b", "#41b4ee"]; % gyarados
 % awsgroup = ["G", "L", "M", "U"];
-awsgroupColor = ["#41b4ee", "#cdb47b", "#bd3162", "#186294", "#737b7b", "#5a4120"]; % gyarados
+awsgroupColor = ["#41b4ee", "#cdb47b", "#395a62", "#186294", "#737b7b", "#1062b4"]; % gyarados
 
 %% plot mean albedo over different AWS groups
 
@@ -55,7 +55,7 @@ plot(ax2, [time_change(1) time_change(1)], [0 albedo_change(1)], ...
     [dfstat.time(1) time_change(2)], [albedo_change(2) albedo_change(2)], ...
     [time_change(3) time_change(3)], [0 albedo_change(3)], ...
     [dfstat.time(1) time_change(3)], [albedo_change(3) albedo_change(3)], ...
-    "LineStyle", "-.", "LineWidth", 1, "Color", awsgroupColor(3));
+    "LineStyle", "-.", "LineWidth", 1.5, "Color", awsgroupColor(3));
 hold on
 scatter(ax2, time_change, albedo_change, ...
     "filled", "MarkerFaceColor", awsgroupColor(3));
@@ -74,7 +74,7 @@ plot(ax2, [time_change(1) time_change(1)], [0 albedo_change(1)], ...
     [dfstat.time(1) time_change(2)], [albedo_change(2) albedo_change(2)], ...
     [time_change(3) time_change(3)], [0 albedo_change(3)], ...
     [dfstat.time(1) time_change(3)], [albedo_change(3) albedo_change(3)], ...
-    "LineStyle", "--", "LineWidth", 1, "Color", awsgroupColor(6));
+    "LineStyle", "--", "LineWidth", 1.5, "Color", awsgroupColor(6));
 scatter(ax2, time_change, albedo_change, ...
     "filled", "MarkerFaceColor", awsgroupColor(6));
 line2 = yline(ax2, albedo_threshold, '--', sprintf('\\alpha (linear) = %.3f', albedo_threshold),...
@@ -82,9 +82,9 @@ line2 = yline(ax2, albedo_threshold, '--', sprintf('\\alpha (linear) = %.3f', al
         "DisplayName", "abrupt change in linear regime");
 
 line3 = plot(dfstat.time, dfstat.mean_albedo, "LineWidth", 2, ...
-    "DisplayName", "\alpha \pm 1\sigma", "Color", awsgroupColor(1));
+    "DisplayName", "\alpha \pm 1\sigma", "Color", awsgroupColor(5));
 plotci(ax2, dfstat.time, dfstat.mean_albedoH, dfstat.mean_albedoL, ...
-            awsgroupColor(1));
+            awsgroupColor(5));
 text(ax2, datetime(2023, 6, 3), 0.2, "b)", "FontSize", 12);
 ylim(ax2, [0.15 0.9]);
 xlim(ax2, [datetime(2023,6,1) datetime(2023,8,31)]);
@@ -97,32 +97,6 @@ exportgraphics(f1, "..\print\fig1_aoi.pdf", "Resolution", 300);
 
 
 %% functions
-function plotAWSGroup(figax, df, awsgroup, awsgroupColor)
-    % hold on
-    ax = zeros(numel(awsgroup), 1);
-    for i = 1:numel(awsgroup)
-        index = df.awsgroup == awsgroup(i);
-        dfawsplot = df(index, :);
-        if isempty(dfawsplot)
-            continue
-        end
-        ax(i) = plot(dfawsplot.time, dfawsplot.mean_albedo, ...
-            "LineWidth", 2, "DisplayName", awsgroup(i), "Color", awsgroupColor(i));
-        plotci(figax, dfawsplot.time, dfawsplot.mean_albedoH, dfawsplot.mean_albedoL, ...
-            awsgroupColor(i));
-    end
-    % yline(figax, 0.565,       '--', '\alpha = 0.565',         ...
-    %     'Color', 'k', 'LineWidth', 1.5, 'LabelHorizontalAlignment','right'); 
-    % yline(figax, 0.565+0.109, '--', '\alpha = 0.565+1\sigma', ...
-    %     'Color', 'k', 'LineWidth', 1);
-    % yline(figax, 0.565-0.109, '--', '\alpha = 0.565-1\sigma', ...
-    %     'Color', 'k', 'LineWidth', 1);
-    xlim([datetime(unique(df.y), 6, 1) datetime(unique(df.y), 8, 31)]);
-    % hold off
-    legend(figax, ax(ax>0), "NumColumns", numel(awsgroup));
-    grid on
-    % clearvars ax
-end
 
 function plotci(ax, x, meanH, meanL, colorcode)
 % plot confidence interval

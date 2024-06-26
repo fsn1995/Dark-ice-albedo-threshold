@@ -318,50 +318,51 @@ var s2Col = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
 var landsatCol = oliCol.merge(etmCol).merge(tmCol).merge(tm4Col).merge(oli2Col);
 var multiSat = landsatCol.merge(s2Col); // Sort chronologically in descending order.
  
-var minAlbedo = multiSat.min().updateMask(iceMask);
+var minAlbedo = multiSat.min().updateMask(iceMask).multiply(10000).toUint16();
 
 /*
 Count the areas of dark ice using different thresholds:
 albedo < 0.451 or 0.431
 And export the results to Google Drive
 */
-var darkIce451Area = ee.Image.pixelArea().mask(minAlbedo.lt(0.451)).reduceRegion({
-    reducer: ee.Reducer.sum(),
-    geometry: aoi,
-    scale: 30,
-    maxPixels: 1e13
-    });
-var darkIce431Area = ee.Image.pixelArea().mask(minAlbedo.lt(0.431)).reduceRegion({
-    reducer: ee.Reducer.sum(),
-    geometry: aoi,
-    scale: 30,
-    maxPixels: 1e13
-    });
+// var darkIce451Area = ee.Image.pixelArea().mask(minAlbedo.lt(0.451)).reduceRegion({
+//     reducer: ee.Reducer.sum(),
+//     geometry: aoi,
+//     scale: 30,
+//     maxPixels: 1e13
+//     });
+// var darkIce431Area = ee.Image.pixelArea().mask(minAlbedo.lt(0.431)).reduceRegion({
+//     reducer: ee.Reducer.sum(),
+//     geometry: aoi,
+//     scale: 30,
+//     maxPixels: 1e13
+//     });
 
 // Create a feature collection with the results
-var featureCollection = ee.FeatureCollection([
-    ee.Feature(null, { darkIce451Area: darkIce451Area.get('area') }),
-    ee.Feature(null, { darkIce431Area: darkIce431Area.get('area') })
-]);
+// var featureCollection = ee.FeatureCollection([
+//     ee.Feature(null, { darkIce451Area: darkIce451Area.get('area') }),
+//     ee.Feature(null, { darkIce431Area: darkIce431Area.get('area') })
+// ]);
 
 // Convert the feature collection to a table
-var table = ee.FeatureCollection(featureCollection).flatten();
+// var table = ee.FeatureCollection(featureCollection).flatten();
 
 // Export the table to Google Drive
-Export.table.toDrive({
-    collection: table,
-    description: 'DarkIceAreas_' + yearOfInterest,
-    fileFormat: 'CSV',
-    folder:'HSA'
-});
+// Export.table.toDrive({
+//     collection: table,
+//     description: 'DarkIceAreas_' + yearOfInterest,
+//     fileFormat: 'CSV',
+//     folder:'HSA'
+// });
 
 // Export the minimum albedo image to Google Drive
 Export.image.toDrive({
-    folder: 'HSA',
+    folder: 'HSAuint16',
     image: minAlbedo,
     description: 'HSA_minAlbedo_' + yearOfInterest,
-    scale: 500,
+    scale: 30,
     region: aoi,
     crs: 'EPSG:3413',
-    maxPixels: 1e13
+    maxPixels: 1e13,
+    fileFormat: 'GeoTIFF',
 });
