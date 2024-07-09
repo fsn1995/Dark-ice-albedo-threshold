@@ -44,7 +44,7 @@ text(ax1, 80, 1600, "a)", "FontSize", 12, "Color", "w");
 ax2 = nexttile([1 2]); %ax2 = nexttile([1 2]);
 
 % find abrupt change in mean
-[TF,S1,S2] = ischange(dfstat.mean_albedo, "mean", "MaxNumChanges", 3);
+[TF,~,~] = ischange(dfstat.mean_albedo, "mean", "MaxNumChanges", 3);
 % [TF,S1,S2] = ischange(dfstat.mean_albedo, "linear", "MaxNumChanges", 3);
 time_change = dfstat.time(TF);
 albedo_change = dfstat.mean_albedo(TF);
@@ -64,7 +64,7 @@ line1 = yline(ax2, albedo_threshold, '-.', sprintf('\\alpha (mean) = %.3f', albe
         "DisplayName", "abrupt change in mean");
 
 % find abrupt change in linear
-[TF,S1,S2] = ischange(dfstat.mean_albedo, "linear", "MaxNumChanges", 3);
+[TF,~,~] = ischange(dfstat.mean_albedo, "linear", "MaxNumChanges", 3);
 time_change = dfstat.time(TF);
 albedo_change = dfstat.mean_albedo(TF);
 albedo_threshold = mean(albedo_change(2:3));

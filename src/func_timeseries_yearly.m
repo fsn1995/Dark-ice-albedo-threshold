@@ -1,4 +1,9 @@
 function outputFigurePath = func_timeseries_yearly(dfFolder, imoutputfolder)
+% This function creates a timeseries plot of yearly mean and standard deviation of bare to dark ice transition days and dark ice duration days.
+% The data is read from the excel file in the dfFolder and the output figure is saved in the imoutputfolder.
+% The function returns the path of the output figure.
+% Shunan Feng (shunan.feng@envs.au.dk)
+
     dfyearly = readtable(fullfile(dfFolder, "areacount.xlsx"), "Sheet", "MODIS");
 
     f1 = figure;

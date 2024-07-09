@@ -1,4 +1,11 @@
 function figfile = func_HSA_timeseries(tifFolder)
+% func_HSA_timeseries generates the time series maps of HSA for KAN_M
+%   func_HSA_timeseries(tifFolder) generates the time series of HSA for KAN_M
+%   from 2019-06-01 to 2019-08-31.
+%   The input tifFolder is the folder containing the tif files.
+%   The output is a pdf file containing the time series maps of HSA for KAN_M.
+%   The function also saves the daily dark ice area to an excel file.
+%   Shunan Feng (shunan.feng@envs.au.dk)
     tiffiles = dir(fullfile(tifFolder, "\**\*.tif"));
     tiffiles = tiffiles(22:83); % 2019-06-01 to 2019-08-31
 

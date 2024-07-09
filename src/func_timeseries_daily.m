@@ -1,4 +1,13 @@
 function outputFigurePath = func_timeseries_daily(dfFolder, imoutputfolder)
+% func_timeseries_daily plot daily dark ice area with standard deviation    
+%   Input:
+%       dfFolder: string, the folder containing the darkice_daily_MODIS.csv
+%       imoutputfolder: string, the folder to save the output figure
+%   Output:
+%       outputFigurePath: string, the path of the output figure
+%
+%   Shunan Feng (shunan.feng@envs.au.dk)
+    
     dfdaily = readtable(fullfile(dfFolder, "MODIS\darkice_daily_MODIS.csv"));
     % dfyearly = readtable(fullfile(dfFolder, "areacount.xlsx"), "Sheet", "MODIS");
 

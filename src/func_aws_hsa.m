@@ -60,10 +60,10 @@ function figfile = func_aws_hsa(dfFolder, tifFolder)
     dfcount.validratio = (dfcount.imcounttotal - dfcount.imcountmasked)./dfcount.imcounttotal;
     dfcount.overestimation = (dfcount.imcount451 - dfcount.imcount431)./dfcount.imcount431;
     ax6 = nexttile([1 2]);
-    p6 = scatter(ax6, dfcount, "imdate", "overestimation", "filled", "colorvariable", "validratio");
+    scatter(ax6, dfcount, "imdate", "overestimation", "filled", "colorvariable", "validratio");
     colormap(ax6, crameri("roma"));
     c6 = colorbar(ax6, "eastoutside");
-    c6.Label.String = "valid/total pixel ratio";
+    c6.Label.String = "valid/total pixels (ratio)";
     grid on
     ylabel(ax6, "dark ice overestimation");
     xlabel(ax6, "");
@@ -71,7 +71,7 @@ function figfile = func_aws_hsa(dfFolder, tifFolder)
     
 
     % map satellite images and albedo
-    imfile = tiffiles(30); % 2019-06-13
+    imfile = tiffiles(42); % 2019-06-30
     [A, R] = readgeoraster(fullfile(imfile.folder, imfile.name));
     imalbedo = A(:,:,end);
 
@@ -115,7 +115,7 @@ function figfile = func_aws_hsa(dfFolder, tifFolder)
     mapshow(ax4, imrgb, R, "DisplayType", "image");
     mapshow(ax4, mapx, mapy, "DisplayType","point", ...
             "Marker","o", "MarkerEdgeColor","k", "MarkerFaceColor","r");
-    scalebarpsn('location', 'se');
+    scalebarpsn('location', 'se', 'color', 'w');
 
     ax5 = nexttile;
     mapshow(imalbedo, R, "DisplayType", "surface");
@@ -132,16 +132,17 @@ function figfile = func_aws_hsa(dfFolder, tifFolder)
     % add text to subplots
     text(ax1, 0.25, 0.8, sprintf("a) r^2 = %.2f, p-value = %.2f", ...
         mdl.Rsquared.Ordinary, mdl.ModelFitVsNullModel.Pvalue), "Units", "normalized");
-    text(ax6, 0.05, 0.9, "b) $\frac{area (\alpha<0.451) - area (\alpha<0.431)}{area (\alpha<0.431)}$", ...
-        "Units", "normalized", "Interpreter", "latex");
-    text(ax2, 0, -0.1, "c)", "Units", "normalized");
-    text(ax2, 1, 1.2, "2019-06-13", "Units", "normalized");
-    text(ax3, 0, -0.1, "d)", "Units", "normalized");
-    text(ax4, 0, -0.1, "e)", "Units", "normalized");
+    text(ax6, 0.05, 0.9, "b)", "Units", "normalized");
+    text(ax2, 0, -0.15, "c)", "Units", "normalized");
+    text(ax2, 1, 1.2, "2019-06-30", "Units", "normalized");
+    text(ax3, 0, -0.15, "d)", "Units", "normalized");
+    text(ax4, 0, -0.15, "e)", "Units", "normalized");
     text(ax4, 1, 1.2, "2019-08-02", "Units", "normalized");
-    text(ax5, 0, -0.1, "f)", "Units", "normalized");
+    text(ax5, 0, -0.15, "f)", "Units", "normalized");
 
     fontsize(t, 14, "points");
+    text(ax6, 0.1, 0.9, "  $\frac{area (\alpha<0.451) - area (\alpha<0.431)}{area (\alpha<0.431)}$", ...
+        "Units", "normalized", "Interpreter", "latex", "FontSize", 20);
 
     imoutputfolder = "..\print";
     figfile = fullfile(imoutputfolder, "aws_hsa.pdf");

@@ -1,4 +1,10 @@
 function outputFigurePath = func_darkareaMODIS(imfolder, imoutputfolder, statisticsfile)
+% This function creates a timeseries plot of yearly mean and standard deviation of bare to dark ice transition days and dark ice duration days.
+% The data is read from the tif images and maps saved in imoutputfolder.
+% It also calcaultes the statistics of dark ice area and save it to an excel file.
+% The function returns the path of the output figure.
+% Shunan Feng (shunan.feng@envs.au.dk)
+
     imfiles = dir(fullfile(imfolder, "MODIS_*.mat"));
     imdate = string({imfiles.name}.');
     imdate = extractBetween(imdate, "MODIS_", ".mat");
@@ -41,7 +47,7 @@ function outputFigurePath = func_darkareaMODIS(imfolder, imoutputfolder, statist
         colormap(ax1, cmocean('ice'));
         axis off
         scalebarpsn('location', 'se');
-        ylabel(ax1, "minimum \alpha < 0.451");
+        ylabel(ax1, "\alpha < 0.451");
         ax1.YAxis.Label.Visible='on';
 
         % plot the duration of dark ice (albedo < 0.451)
@@ -79,7 +85,7 @@ function outputFigurePath = func_darkareaMODIS(imfolder, imoutputfolder, statist
         clim(ax4, [0 0.451]);
         colormap(ax4, cmocean('ice'));
         axis off
-        ylabel(ax4, "minimum \alpha < 0.431");
+        ylabel(ax4, "\alpha < 0.431");
         ax4.YAxis.Label.Visible='on';
 
         % scalebarpsn('location', 'se');
@@ -105,17 +111,17 @@ function outputFigurePath = func_darkareaMODIS(imfolder, imoutputfolder, statist
 
         % add colorbars
         c1 = colorbar(ax1, 'Location', 'eastoutside');
-        c1.Label.String = "\alpha";
+        c1.Label.String = "minimum \alpha";
         c2 = colorbar(ax2, 'Location', 'eastoutside');
         c2.Label.String = "dark ice duration (days)";
         c3 = colorbar(ax3, 'Location', 'eastoutside');
         c3.Label.String = "bare-dark ice duration (days)";
         c4 = colorbar(ax4, 'Location', 'eastoutside');
-        c4.Label.String = "\alpha";
+        c4.Label.String = "minimum \alpha";
         c5 = colorbar(ax5, 'Location', 'eastoutside');
         c5.Label.String = "dark ice duration (days)";
         c6 = colorbar(ax6, 'Location', 'eastoutside');
-        c6.Label.String = "days for dark ice transition";
+        c6.Label.String = "bare-dark ice duration (days)";
         title(t, imdate(i), 'FontWeight', 'normal');
 
         % add subfigure labels
