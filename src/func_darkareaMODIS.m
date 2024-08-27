@@ -14,16 +14,21 @@ function outputFigurePath = func_darkareaMODIS(imfolder, imoutputfolder, statist
         delete(fullfile(imoutputfolder, "supplement_MODIS_yearly.pdf"));
     end
     % overwrite excel sheet
-    df = array2table(zeros(0, 13), 'VariableNames', [
-        "imyear", "area451", "area431", "meanalbedo451", "meanalbedo431", ...
+    df = array2table(zeros(0, 19), 'VariableNames', [
+        "imyear", "bareicearea", "area451", "area431", "meanalbedo451", "meanalbedo431", ...
         "meanDuration451", "meanDuration431", "stdDuration451", "stdDuration431", ...
-        "meanTranstion451", "meanTranstion431", "stdTranstion451", "stdTranstion431"]);
+        "meanTranstion451", "meanTranstion431", "stdTranstion451", "stdTranstion431", ...
+        "areaDiff", "menaDurationDiff", "stdDurationDiff", "meanTranstionDiff", "stdTranstionDiff"]);
     writetable(df, statisticsfile, ...
         "Sheet", "MODIS", "WriteMode", "overwritesheet", "WriteVariableNames", true);
 
     for i = 1:length(imdate)
         fprintf("Processing %s\n", imdate(i));
         load(fullfile(imfolder, imfiles(i).name));
+
+        % get bare ice areas
+        minA(minA >= 0.565) = NaN;
+        bareicearea = 500 * 500 * sum(~isnan(minA), "all"); % area of bare ice in m^2
 
         % mask images
         days451(days451 == 0) = NaN;
@@ -37,6 +42,8 @@ function outputFigurePath = func_darkareaMODIS(imfolder, imoutputfolder, statist
         figfile.Position = [165 44 1135 730];
 
         t = tiledlayout(2, 3, 'TileSpacing','compact','Padding','compact');
+        % figfile.Position = [916 124 1135 1131];
+        % t = tiledlayout(3, 3, 'TileSpacing','compact','Padding','compact');
 
         % plot the minimum albedo (albedo < 0.451)
         ax1 = nexttile;
@@ -71,7 +78,10 @@ function outputFigurePath = func_darkareaMODIS(imfolder, imoutputfolder, statist
 
         % mask images
         days431(days431 == 0) = NaN;
+        minADiff = minA;
         minA(minA >= 0.431) = NaN;
+        minADiff(~isnan(minA)) = NaN;   
+        minADiff(~isnan(minADiff)) = 1;
         minA(isnan(days431)) = NaN;
         days431(isnan(minA)) = NaN;
         darkduration431(isnan(minA)) = NaN;
@@ -109,6 +119,34 @@ function outputFigurePath = func_darkareaMODIS(imfolder, imoutputfolder, statist
         axis off
         % scalebarpsn('location', 'se');
 
+        % % plot the difference in minimum albedo, dark ice duration, bare to dark ice transition days
+        % ax7 = nexttile;
+        % greenland('k');
+        % hold on
+        % mapshow(ax7, minADiff, R, "DisplayType", "surface");
+        % % clim(ax7, [0 0.02]);
+        % % colormap(ax7, cmocean('balance'));
+        % axis off
+        % ylabel(ax7, "Difference");
+        % ax7.YAxis.Label.Visible='on';
+
+        % ax8 = nexttile;
+        % greenland('k');
+        % hold on
+        % mapshow(ax8, darkduration451 - darkduration431, R, "DisplayType", "surface");
+        % % clim(ax8, [-20 20]);
+        % % colormap(ax8, cmocean('balance'));
+        % axis off
+
+        % ax9 = nexttile;
+        % greenland('k');
+        % hold on
+        % mapshow(ax9, days451 - days431, R, "DisplayType", "surface");
+        % % clim(ax9, [-20 20]);
+        % % colormap(ax9, cmocean('balance'));
+        % axis off
+
+
         % add colorbars
         c1 = colorbar(ax1, 'Location', 'eastoutside');
         c1.Label.String = "minimum \alpha";
@@ -122,6 +160,12 @@ function outputFigurePath = func_darkareaMODIS(imfolder, imoutputfolder, statist
         c5.Label.String = "dark ice duration (days)";
         c6 = colorbar(ax6, 'Location', 'eastoutside');
         c6.Label.String = "bare-dark ice duration (days)";
+        % c7 = colorbar(ax7, 'Location', 'eastoutside');
+        % c7.Label.String = "\Delta minimum \alpha";
+        % c8 = colorbar(ax8, 'Location', 'eastoutside');
+        % c8.Label.String = "\Delta dark ice duration (days)";
+        % c9 = colorbar(ax9, 'Location', 'eastoutside');
+        % c9.Label.String = "\Delta bare-dark ice duration (days)";
         title(t, imdate(i), 'FontWeight', 'normal');
 
         % add subfigure labels
@@ -131,6 +175,9 @@ function outputFigurePath = func_darkareaMODIS(imfolder, imoutputfolder, statist
         text(ax4, 0.15, 0.1, 'd)', 'Units', 'normalized');
         text(ax5, 0.15, 0.1, 'e)', 'Units', 'normalized');
         text(ax6, 0.15, 0.1, 'f)', 'Units', 'normalized');
+        % text(ax7, 0.15, 0.1, 'g)', 'Units', 'normalized');
+        % text(ax8, 0.15, 0.1, 'h)', 'Units', 'normalized');
+        % text(ax9, 0.15, 0.1, 'i)', 'Units', 'normalized');
 
         fontsize(t, 16, "points");
 
@@ -149,11 +196,17 @@ function outputFigurePath = func_darkareaMODIS(imfolder, imoutputfolder, statist
         meanTranstion431 = mean(days431, "all", "omitmissing"); % mean duration of dark ice (albedo < 0.431)
         stdTranstion451 = std(days451(:), "omitmissing"); % standard deviation of duration of dark ice (albedo < 0.451)
         stdTranstion431 = std(days431(:), "omitmissing"); % standard deviation of duration of dark ice (albedo < 0.431)"
+        areaDiff = 500 * 500 * sum(minADiff, "all", "omitmissing"); % area of difference in dark ice (albedo < 0.451) and dark ice (albedo < 0.431) in m^2
+        menaDurationDiff = mean(darkduration451(:) - darkduration431(:), "omitmissing"); % mean difference in dark ice duration (albedo < 0.451) and dark ice duration (albedo < 0.431)
+        stdDurationDiff = std(darkduration451(:) - darkduration431(:), "omitmissing"); % standard deviation of difference in dark ice duration (albedo < 0.451) and dark ice duration (albedo < 0.431)
+        meanTranstionDiff = mean(days451(:) - days431(:), "omitmissing"); % mean difference in duration of dark ice (albedo < 0.451) and dark ice (albedo < 0.431)
+        stdTranstionDiff = std(days451(:) - days431(:), "omitmissing"); % standard deviation of difference in duration of dark ice (albedo < 0.451) and dark ice (albedo < 0.431)
         % create a table for statistics
         imyear = double(string(imdate(i)));
-        df = table(imyear, area451, area431, meanalbedo451, meanalbedo431, ...
+        df = table(imyear, bareicearea, area451, area431, meanalbedo451, meanalbedo431, ...
             meanDuration451, meanDuration431, stdDuration451, stdDuration431, ...
-            meanTranstion451, meanTranstion431, stdTranstion451, stdTranstion431);
+            meanTranstion451, meanTranstion431, stdTranstion451, stdTranstion431, ...
+            areaDiff, menaDurationDiff, stdDurationDiff, meanTranstionDiff, stdTranstionDiff);
         % save the table
         writetable(df, statisticsfile, ...
             "Sheet", "MODIS", "WriteMode", "append", "WriteVariableNames", false);

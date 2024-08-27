@@ -1,4 +1,21 @@
-dffile = "..\data\areacount.xlsx";
+function figPath = func_bareVSdark(dffile)
+%% func_bareVSdark - Function to plot the relationship between maximum bare ice area and maximum dark ice area.
+%
+% Syntax:
+%   figPath = func_bareVSdark(dffile)
+%
+% Input Arguments:
+%   - dffile: A string specifying the file path of the input data file.
+%
+% Output Argument:
+%   - figPath: A string specifying the file path of the saved figure.
+%
+% Description:
+%   This function reads data from the specified file and performs linear regression analysis to determine the relationship between maximum bare ice area and maximum dark ice area. 
+%   It then plots the regression lines, scatter plots, and adds relevant statistical information to the figure. The resulting figure is saved as a PDF file.
+%
+% Shunan Feng (shunan.feng@envs.au.dk)
+    
 df = readtable(dffile, "Sheet", "MODIS");
 % convert area from m2 to km2
 df.bareicearea = df.bareicearea/1e6;
@@ -36,3 +53,9 @@ text(0.1, 0.15,sprintf("\\alpha<0.451: r^2:%.2f, p-value<%.2f, n:%.0f", mdl451.R
 text(0.1, 0.10,sprintf("\\alpha<0.431: r^2:%.2f, p-value<%.2f, n:%.0f", mdl431.Rsquared.Ordinary, mdl431.ModelFitVsNullModel.Pvalue, mdl431.NumObservations), "Units", "normalized");
 
 fontsize(f1, 14, "points");
+
+% Save the figure
+figPath = fullfile("..\print", 'bareVSdark.pdf');
+exportgraphics(f1, figPath, 'Resolution', 300);
+
+end

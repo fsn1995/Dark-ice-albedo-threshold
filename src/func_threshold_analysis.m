@@ -35,12 +35,12 @@ dfstat = df(df.awsgroup == "M", :);
 
 
 f1 = figure;
-f1.Position = [488   245   917   376];
-t = tiledlayout(1, 3, "TileSpacing","compact", "Padding","compact");
+f1.Position = [969 247 1123 795];
+t = tiledlayout(2, 3, "TileSpacing","compact", "Padding","compact");
 ax1 = nexttile(t);
 A = imread("..\print\aoi.png");
 imshow(A);
-text(ax1, 80, 1600, "a)", "FontSize", 12, "Color", "w");
+text(ax1, 100, 1600, "a)", "Color", "w");
 ax2 = nexttile([1 2]); %ax2 = nexttile([1 2]);
 
 % find abrupt change in mean
@@ -85,14 +85,21 @@ line3 = plot(dfstat.time, dfstat.mean_albedo, "LineWidth", 2, ...
     "DisplayName", "\alpha \pm 1\sigma", "Color", awsgroupColor(5));
 plotci(ax2, dfstat.time, dfstat.mean_albedoH, dfstat.mean_albedoL, ...
             awsgroupColor(5));
-text(ax2, datetime(2023, 6, 3), 0.2, "b)", "FontSize", 12);
+text(ax2, datetime(2023, 6, 3), 0.2, "b)");
 ylim(ax2, [0.15 0.9]);
 xlim(ax2, [datetime(2023,6,1) datetime(2023,8,31)]);
 ylabel(ax2, "albedo (\alpha)");
 ax2.XTickLabel = ax2.XTickLabel;
 grid on
 legend([line3 line1 line2], "Location", "northeast");
-fontsize(f1, 12, "points");
+
+
+ax3 = nexttile([1 3]);
+A = imread("..\print\darkiceIllustration.png");
+imshow(A);
+text(ax3, 0.01, 1.1, "c)", "Color", "k", "Units", "normalized");
+
+fontsize(f1, 16, "points");
 exportgraphics(f1, "..\print\fig1_aoi.pdf", "Resolution", 300);
 
 

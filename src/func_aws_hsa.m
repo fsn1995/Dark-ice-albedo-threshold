@@ -86,8 +86,11 @@ function figfile = func_aws_hsa(dfFolder, tifFolder)
 
     ax2 = nexttile;
     mapshow(ax2, imrgb, R, "DisplayType", "image");
+    hold on
     mapshow(ax2, mapx, mapy, "DisplayType","point", ...
             "Marker","o", "MarkerEdgeColor","k", "MarkerFaceColor","r");
+    contmap = mapshow(imalbedo, R, "DisplayType", "contour", "LineColor", "#1062b4", "LineWidth", 1);
+    contmap.LevelList = [0.431 0.431];            
     scalebarpsn('location', 'se');
 
     ax3 = nexttile;
@@ -95,8 +98,8 @@ function figfile = func_aws_hsa(dfFolder, tifFolder)
     colormap(ax3, func_dpcolor());
     clim(ax3, [0 1]);
     hold on
-    contmap = mapshow(imalbedo, R, "DisplayType", "contour", "LineColor", "#1062b4", "LineWidth", 1);
-    contmap.LevelList = [0.431 0.431];
+    % contmap = mapshow(imalbedo, R, "DisplayType", "contour", "LineColor", "#1062b4", "LineWidth", 1);
+    % contmap.LevelList = [0.431 0.431];
     contmap = mapshow(imalbedo, R, "DisplayType", "contour", "LineColor", "#395a62", "LineWidth", 1);
     contmap.LevelList = [0.451 0.451];
 
@@ -113,8 +116,11 @@ function figfile = func_aws_hsa(dfFolder, tifFolder)
 
     ax4 = nexttile;
     mapshow(ax4, imrgb, R, "DisplayType", "image");
+    hold on
     mapshow(ax4, mapx, mapy, "DisplayType","point", ...
             "Marker","o", "MarkerEdgeColor","k", "MarkerFaceColor","r");
+    contmap = mapshow(imalbedo, R, "DisplayType", "contour", "LineColor", "#1062b4", "LineWidth", 1);
+    contmap.LevelList = [0.431 0.431];            
     scalebarpsn('location', 'se', 'color', 'w');
 
     ax5 = nexttile;
@@ -124,8 +130,8 @@ function figfile = func_aws_hsa(dfFolder, tifFolder)
     c.Label.String = "\alpha";
     clim(ax5, [0 1]);
     hold on
-    contmap = mapshow(imalbedo, R, "DisplayType", "contour", "LineColor", "#1062b4", "LineWidth", 1);
-    contmap.LevelList = [0.431 0.431];
+    % contmap = mapshow(imalbedo, R, "DisplayType", "contour", "LineColor", "#1062b4", "LineWidth", 1);
+    % contmap.LevelList = [0.431 0.431];
     contmap = mapshow(imalbedo, R, "DisplayType", "contour", "LineColor", "#395a62", "LineWidth", 1);
     contmap.LevelList = [0.451 0.451];
 

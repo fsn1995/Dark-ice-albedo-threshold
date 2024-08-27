@@ -13,3 +13,4 @@
 
 [~] = func_aws_hsa("..\data", "H:\AU\promiceaws\HSA\KAN_M");
 
+[~] = func_bareVSdark("..\data\areacount.xlsx");
