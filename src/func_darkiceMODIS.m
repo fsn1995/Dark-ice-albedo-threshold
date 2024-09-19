@@ -1,6 +1,6 @@
 function outputFolder = func_darkiceMODIS(imfolder)
-% FUNC_DARKICEMODIS Calculate the minimum albedo and the days for bare ice to become dark
-% using MODIS images.
+% FUNC_DARKICEMODIS Calculate albedo, the days for bare ice to become dark,
+% and dark ice duration using MODIS images.
 %
 % Shunan Feng (shunan.feng@envs.au.dk)
 

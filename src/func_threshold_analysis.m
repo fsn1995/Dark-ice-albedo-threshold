@@ -40,7 +40,7 @@ t = tiledlayout(2, 3, "TileSpacing","compact", "Padding","compact");
 ax1 = nexttile(t);
 A = imread("..\print\aoi.png");
 imshow(A);
-text(ax1, 100, 1600, "a)", "Color", "w");
+text(ax1, 100, 1600, "a)", "Color", "w", "FontWeight", "bold");
 ax2 = nexttile([1 2]); %ax2 = nexttile([1 2]);
 
 % find abrupt change in mean
@@ -59,7 +59,7 @@ plot(ax2, [time_change(1) time_change(1)], [0 albedo_change(1)], ...
 hold on
 scatter(ax2, time_change, albedo_change, ...
     "filled", "MarkerFaceColor", awsgroupColor(3));
-line1 = yline(ax2, albedo_threshold, '-.', sprintf('\\alpha (mean) = %.3f', albedo_threshold),...
+line1 = yline(ax2, albedo_threshold, '-.', sprintf('\\alpha (mean) = %.3f            ', albedo_threshold),...
         'Color', awsgroupColor(3), 'LineWidth', 1.5, 'LabelHorizontalAlignment','right', ...
         "DisplayName", "abrupt change in mean");
 
@@ -77,15 +77,21 @@ plot(ax2, [time_change(1) time_change(1)], [0 albedo_change(1)], ...
     "LineStyle", "--", "LineWidth", 1.5, "Color", awsgroupColor(6));
 scatter(ax2, time_change, albedo_change, ...
     "filled", "MarkerFaceColor", awsgroupColor(6));
-line2 = yline(ax2, albedo_threshold, '--', sprintf('\\alpha (linear) = %.3f', albedo_threshold),...
-        'Color', awsgroupColor(6), 'LineWidth', 1.5, 'LabelHorizontalAlignment','left', ...
+line2 = yline(ax2, albedo_threshold, '--',...
+        'Color', awsgroupColor(6), 'LineWidth', 1.5, ...
         "DisplayName", "abrupt change in linear regime");
+% can't control the position of the label using yline, so use text instead.         
+text(ax2, datetime(2023, 6, 3), 0.48, sprintf('\\alpha (linear) = %.3f', albedo_threshold), "Color", awsgroupColor(6));
 
 line3 = plot(dfstat.time, dfstat.mean_albedo, "LineWidth", 2, ...
     "DisplayName", "\alpha \pm 1\sigma", "Color", awsgroupColor(5));
 plotci(ax2, dfstat.time, dfstat.mean_albedoH, dfstat.mean_albedoL, ...
             awsgroupColor(5));
-text(ax2, datetime(2023, 6, 3), 0.2, "b)");
+text(ax2, datetime(2023, 6, 3), 0.2, "b)", "FontWeight", "bold");
+text(ax2, datetime(2023, 6, 10), 0.25, "stage 1");
+text(ax2, datetime(2023, 7, 7), 0.25, "stage 2");
+text(ax2, datetime(2023, 7, 28), 0.25, "stage 3");
+text(ax2, datetime(2023, 8, 20), 0.25, "stage 4");
 ylim(ax2, [0.15 0.9]);
 xlim(ax2, [datetime(2023,6,1) datetime(2023,8,31)]);
 ylabel(ax2, "albedo (\alpha)");
@@ -97,7 +103,7 @@ legend([line3 line1 line2], "Location", "northeast");
 ax3 = nexttile([1 3]);
 A = imread("..\print\darkiceIllustration.png");
 imshow(A);
-text(ax3, 0.01, 1.1, "c)", "Color", "k", "Units", "normalized");
+text(ax3, 0.01, 1.1, "c)", "Color", "k", "Units", "normalized", "FontWeight", "bold");
 
 fontsize(f1, 16, "points");
 exportgraphics(f1, "..\print\fig1_aoi.pdf", "Resolution", 300);

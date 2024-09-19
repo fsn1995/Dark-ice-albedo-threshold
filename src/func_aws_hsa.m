@@ -65,7 +65,7 @@ function figfile = func_aws_hsa(dfFolder, tifFolder)
     c6 = colorbar(ax6, "eastoutside");
     c6.Label.String = "valid/total pixels (ratio)";
     grid on
-    ylabel(ax6, "dark ice overestimation");
+    ylabel(ax6, "area difference ratio");
     xlabel(ax6, "");
     xlim(ax6, [datetime(2019, 6, 1) datetime(2019, 8, 31)]);
     
