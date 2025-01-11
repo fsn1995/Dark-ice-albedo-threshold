@@ -60,10 +60,11 @@ function outputFigurePath = func_timeseries_daily(dfFolder, imoutputfolder)
     scatter(ax2, dfdailystat_mean.year, dfdailystat_mean.mean_darkice_area431,...
      'filled', 'MarkerFaceColor', '#1062b4', 'DisplayName', 'mean dark ice area (\alpha<0.431)');
     scatter(ax2, dfdailystat_mean.year, dfdailystat_mean.mean_darkice_area451,...
-     'filled', 'MarkerFaceColor', '#395a62', 'DisplayName', 'mean dark ice area (\alpha<0.451)');
+     'd', 'MarkerFaceColor', '#395a62', 'MarkerEdgeColor', "#D95319", 'DisplayName', 'mean dark ice area (\alpha<0.451)');
 
     b1(1).BoxFaceColor = "#1062b4";
     b1(2).BoxFaceColor = "#395a62";
+    b1(2).BoxEdgeColor = "#D95319";
     b1(1).MarkerColor = "#1062b4";
     b1(2).MarkerColor = "#395a62";
     xlim(ax2, [min(yearList)-0.5 max(yearList)+0.5]);
